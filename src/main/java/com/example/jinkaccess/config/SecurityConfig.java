@@ -25,6 +25,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 允许匿名访问的接口
                         .requestMatchers("/api/user/register", "/api/user/login").permitAll()
+                        // 管理员接口只能 ADMIN 角色访问
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // 其他接口都需要认证
                         .anyRequest().authenticated()
                 )

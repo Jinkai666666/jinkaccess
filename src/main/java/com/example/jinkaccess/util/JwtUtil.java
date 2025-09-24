@@ -20,15 +20,17 @@ public class JwtUtil {
     private static final long EXPIRATION_TIME = 1000*60*60*24;
 
 
-    // 根据用户名生成 JWT Token
-    public static String generateToken(String username) {
+    // 根据用户名和角色生成 JWT Token
+    public static String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username) // 设置主题，用户名
+                .claim("role", role)  // 新增：把角色写进 Token
                 .setIssuedAt(new Date()) // 签发时间（当前时间）
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 过期时间
                 .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()), SignatureAlgorithm.HS256) // 签名算法和密钥
                 .compact(); // 生成最终的 Token 字符串
     }
+
 
 
     //从Token中解析出用户名
@@ -39,7 +41,19 @@ public class JwtUtil {
                 .parseClaimsJws(token) // 解析 token
                 .getBody()
                 .getSubject();// 取出 setSubject(username) 存进去的用户名
+
     }
+
+    // 从 Token 中解析出角色
+    public static String getUserRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class); // 取出我们存进去的 role
+    }
+
 
 
 }

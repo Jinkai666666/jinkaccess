@@ -52,8 +52,8 @@ public class UserController {
             return Result.error(401, "密码错误");
         }
 
-        // 3. 登录成功，生成 JWT token
-        String token = jwtUtil.generateToken(dbUser.getUsername());
+        // 3. 登录成功，生成 JWT token（包含用户名和角色）
+        String token = jwtUtil.generateToken(dbUser.getUsername(),dbUser.getRole());
 
         // 4. 返回统一格式
         return Result.success("登录成功", token);
