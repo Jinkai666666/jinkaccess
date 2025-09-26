@@ -1,11 +1,13 @@
 package com.example.jinkaccess.controller;
 
 import com.example.jinkaccess.model.User;
+import com.example.jinkaccess.model.UserVO;
 import com.example.jinkaccess.repository.UserRepository;
 import com.example.jinkaccess.service.UserService;
 import com.example.jinkaccess.util.JwtUtil;
 import com.example.jinkaccess.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -61,20 +63,18 @@ public class UserController {
 
     // 获取当前登录用户信息
     @GetMapping("/info")
-    public Result<User> getUserInfo() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
+    public Result<UserVO> getUserInfo(Authentication authentication) {
+        // 从认证信息里拿到当前用户名
+        String username = authentication.getName();
 
-        if (auth != null) {
-            // 从认证对象中拿到用户名
-            String username = auth.getName();
+        // 根据用户名查数据库
+        User user = userRepository.findByUsername(username)
+                .orElseThrow((->new RuntimeException("用户不存在")));
 
-            // 根据用户名查数据库
-            return userRepository.findByUsername(username)
-                    .map(user -> Result.success("获取成功", user))
-                    .orElse(Result.error(404, "用户不存在"));
-        } else {
-            return Result.error(401, "未登录");
-        }
+        // 转换成 UserVO（只保留安全字段）
+        UserVO userVO = new UserVO(user.getId(), user.getUsername(),user.getRole());
+
+        return Result.success(userVO);
     }
 
 }

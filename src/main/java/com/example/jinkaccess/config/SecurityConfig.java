@@ -30,7 +30,7 @@ public class SecurityConfig {
                         // 其他接口都需要认证
                         .anyRequest().authenticated()
                 )
-                // 在 UsernamePasswordAuthenticationFilter 之前加入我们自定义的 JwtAuthFilter
+                // 在 UsernamePasswordAuthenticationFilter 自定义 JwtAuthFilter
                 .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
