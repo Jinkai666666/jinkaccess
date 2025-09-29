@@ -6,6 +6,7 @@ import com.example.jinkaccess.repository.UserRepository;
 import com.example.jinkaccess.service.UserService;
 import com.example.jinkaccess.util.JwtUtil;
 import com.example.jinkaccess.util.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -77,4 +79,40 @@ public class UserController {
         return Result.success(userVO);
     }
 
+    // 删除用户（管理员专属）
+    @DeleteMapping("/admin/user/{id}")
+    public Result<String> deleteUser(@PathVariable Long id){
+        //检查用户是否存在
+        if(!userRepository.findByUsername(id)){
+            return Result.error("用户不存在");
+        }
+        //删除
+        userRepository.delete(id);
+        return Result.success("删除成功");
+
+        return  null;
+    }
+
+    // 修改用户角色（管理员专属）
+    @PutMapping("/admin/users/{id}/role")
+    public Result<String> updateUserRole{
+        @PathVariable Long id,
+        @RequestParam String role{
+        // 查找用户
+        Optional<User> optionalUser = userRepository.findByUsername(id);
+        if (optionalUser.isEmpty()){
+            return Result.error("用户不存在");
+        }
+        //获取用户
+        User user = optionalUser.get();
+        //修改角色
+        user.setRole(role);
+
+        //更新保存
+        userRepository.save(user);
+
+        return Result.succes("角色更新成功");
+
+        }
+    }
 }
