@@ -1,110 +1,72 @@
-📌 JinkAccess
+# JinkAccess 权限后台系统
 
-一个基于 Spring Boot 3 + Spring Security + JWT + MySQL + JPA 的权限后台系统。
-主要功能是用户注册、登录、鉴权和权限控制，适合学习和实践后台权限系统的完整流程。
+## 项目简介
+JinkAccess 是一个基于 Spring Boot + Vue3 + JWT + Spring Security 的权限后台系统，支持：
+- 用户注册、登录（JWT）
+- 角色权限控制（用户 / 管理员）
+- 管理员管理用户
+- 前后端分离，前端基于 Vue3 + element-plus
 
-✨ 功能特点
+## 项目结构
+- src → Spring Boot 后端源码  
+- frontend → Vue3 + Vite + element-plus 前端  
 
-用户管理
+---
 
-用户注册（密码加密存储，BCrypt）
+## 后端说明
 
-用户登录（返回 JWT Token）
+### 技术栈
+- Spring Boot 3.5.5
+- Spring Security 6
+- JWT
+- MySQL + JPA (Hibernate)
 
-获取用户信息（通过 JWT 鉴权）
+### 功能
+- 用户注册（加密存储密码）
+- 登录获取 JWT
+- JWT 拦截与校验
+- 管理员接口（获取用户列表、测试接口）
+- CORS 配置（支持前端 5173 访问）
 
-认证与鉴权
-
-JWT 登录与校验
-
-Spring Security 拦截请求，解析 Token
-
-全局异常处理（统一返回格式）
-
-返回结果
-
-统一使用 Result<T> 封装 API 响应
-
-当前进度（2025/09/23 · Day 11）
-
-✅ 完成注册（BCrypt 密码加密）
-
-✅ 完成登录（返回 JWT）
-
-✅ 完成 JWT 鉴权与过滤器接入
-
-✅ /api/user/info 可获取登录用户信息
-
-✅ 全局异常处理与统一返回格式
-
-⏳ 下一步：角色/权限控制
-
-🛠 技术栈
-
-后端框架：Spring Boot 3.5.5
-
-安全框架：Spring Security + JWT
-
-数据库：MySQL 8 + JPA (Hibernate)
-
-语言环境：Java 17
-
-构建工具：Maven
-
-🚀 启动步骤
-
-克隆仓库：
-
-git clone https://github.com/Jinkai666666/jinkaccess.git
-cd jinkaccess
-
-
-修改数据库配置（application.yml）：
-
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/jinkaccess?useSSL=false&serverTimezone=UTC
-    username: root
-    password: your_password
-
-
-启动项目：
-
+### 启动
+```bash
 mvn spring-boot:run
+默认地址：http://localhost:8080
 
+接口示例
+POST /api/user/register
 
-接口测试：
+POST /api/user/login
 
-注册用户 → POST /api/user/register
+GET /api/user/info
 
-登录用户 → POST /api/user/login
+GET /api/admin/users
 
-获取用户信息 → GET /api/user/info（需携带 JWT）
+GET /api/admin/hello
 
-📅 开发日志
+前端说明
+技术栈
+Vue 3
 
-Day 1：初始化项目，配置 MySQL，完成 User 实体类。
+Vite
 
-Day 2：完成 UserRepository（JPA 数据访问）。
+element-plus
 
-Day 3：完成 UserService。
+axios
 
-Day 4：完成 UserController（注册 + 明文登录）。
+vue-router
 
-Day 5：引入 BCrypt，登录校验改为加密验证。
+功能
+登录页：账号密码登录，保存 JWT
 
-Day 6：新增 JwtUtil 工具类，登录返回 JWT Token。
+用户首页：显示当前用户信息
 
-Day 7：编写 JwtAuthFilter 与 SecurityConfig，完成鉴权闭环。
+管理员页面：查看所有用户
 
-Day 11（当前）：解决 GitHub 上传问题，完成本地仓库提交。准备进入角色/权限控制阶段。
+启动
+bash
 
-📌 TODO
-
- 角色管理（Admin/User）
-
- 接口权限控制（基于角色的访问控制）
-
- 刷新 Token
-
- 前端管理界面（Vue3 + element-plus）
+cd frontend
+npm install
+npm run dev
+默认地址：http://localhost:5173
