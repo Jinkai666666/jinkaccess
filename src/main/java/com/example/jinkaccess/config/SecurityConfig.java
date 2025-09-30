@@ -1,5 +1,4 @@
 package com.example.jinkaccess.config;
-import com.example.jinkaccess.config.JwtAuthFilter;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,32 +7,48 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@Configuration // 声明这是一个配置类
+import java.util.List;
+
+@Configuration
 public class SecurityConfig {
 
-    // 定义 PasswordEncoder Bean，项目里任何地方都能注入
+    // 定义密码加密器
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    //  SecurityFilterChain，配置 Spring Security 规则
+
+    // 核心安全配置
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // 关闭 CSRF（前后端分离常用）
+                .csrf(csrf -> csrf.disable()) // 关闭 CSRF
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) //  启用 CORS
                 .authorizeHttpRequests(auth -> auth
-                        // 允许匿名访问的接口
                         .requestMatchers("/api/user/register", "/api/user/login").permitAll()
-                        // 管理员接口只能 ADMIN 角色访问
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // 其他接口都需要认证
                         .anyRequest().authenticated()
                 )
-                // 在 UsernamePasswordAuthenticationFilter 自定义 JwtAuthFilter
-                .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); // 注入的 filter
 
         return http.build();
     }
 
+    // CORS 配置
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // 允许前端地址
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 }
